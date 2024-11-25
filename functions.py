@@ -89,7 +89,7 @@ class AudioMNISTDataset(Dataset):
         input_values = inputs.input_values.squeeze()
         label = torch.tensor(self.labels[idx])
         
-        return input_values, label
+        return input_values, label, audio_path
         
 def create_dataloaders(root_dir, processor, batch_size=16, test_size=0.2, val_size=0.1, random_seed=42):
     """
@@ -123,14 +123,12 @@ def collate_fn(batch):
     """
     input_values = [item[0] for item in batch]
     labels = torch.stack([item[1] for item in batch])
+    file_paths = [item[2] for item in batch]  # Extract file paths from the batch
 
     # Pad sequences to the max length in the batch
     input_values = torch.nn.utils.rnn.pad_sequence(input_values, batch_first=True)
 
-    return input_values, labels
-
-
-
+    return input_values, labels, file_paths
 
 def train_and_validate(model, train_loader, val_loader, optimizer, loss_fn, epochs=3):
     # Training loop
